@@ -1,0 +1,176 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//1 TO MANY RELATIONSHIP (1 USER HAVE MANY POSTS, 1 POST ONLY HAVE 1 USER)
+
+// model User {
+//   id          String  @id @default(uuid())
+//   name        String
+//   email       String
+//   isAdmin     Boolean
+//   preferences Json
+//   Post        Post[] 
+// }
+
+// model Post {
+//   id        String   @id @default(uuid())
+//   rating    Decimal
+//   createdAt DateTime
+//   updatedAt DateTime
+//   author    User     @relation(fields: [authorId], references: [id])
+//   authorId  String
+// }
+
+// 2 REFERENCES TO THE SAME TABLE
+
+// model User {
+//   id            String  @id @default(uuid())
+//   name          String
+//   email         String
+//   isAdmin       Boolean
+//   preferences   Json
+//   writtenPosts  Post[]  @relation("WrittenPosts")
+//   favoritePosts Post[]  @relation("FavoritePosts")
+// }
+
+// model Post {
+//   id            String   @id @default(uuid())
+//   rating        Decimal
+//   createdAt     DateTime
+//   updatedAt     DateTime
+//   author        User     @relation("WrittenPosts", fields: [authorId], references: [id])
+//   authorId      String
+//   favoritedBy   User?     @relation("FavoritePosts", fields: [favoritedById], references: [id]) // User? to declare favoritedBy is optional
+//   favoritedById String? // User? to declare favoritedById is optional
+// }
+
+// MANY TO MANY RELATIONSHIP (A POST HAVE MANY CATEGORIES, A CATEGORY CAN HAVE MANY POSTS)
+// *Note!
+// No need to take care about hook up between many to many relationship
+// Prisma is handle that by itself
+
+// model User {
+//   id            String  @id @default(uuid())
+//   name          String
+//   email         String
+//   isAdmin       Boolean
+//   preferences   Json
+//   writtenPosts  Post[]  @relation("WrittenPosts")
+//   favoritePosts Post[]  @relation("FavoritePosts")
+// }
+
+// model Post {
+//   id            String   @id @default(uuid())
+//   rating        Decimal
+//   createdAt     DateTime
+//   updatedAt     DateTime
+//   author        User     @relation("WrittenPosts", fields: [authorId], references: [id])
+//   authorId      String
+//   favoritedBy   User?     @relation("FavoritePosts", fields: [favoritedById], references: [id]) // User? to declare favoritedBy is optional
+//   favoritedById String? // User? to declare favoritedById is optional
+//   categories    Category[]
+// }
+
+// model Category {
+//   id String @id @default(uuid())
+//   posts Post[]
+// }
+
+// 1 TO 1 RELATIONSHIP
+// model User {
+//   id             String          @id @default(uuid())
+//   name           String
+//   email          String          @unique //Unique attribute will force email field to be unique in table
+//   isAdmin        Boolean
+//   writtenPosts   Post[]          @relation("WrittenPosts")
+//   favoritePosts  Post[]          @relation("FavoritePosts")
+//   userPreference UserPreference? //CAN HAVE OR NOT HAVE USER PREFERENCE MAP
+// }
+
+// model UserPreference {
+//   id           String  @id @default(uuid())
+//   emailUpdates Boolean
+//   user         User    @relation(fields: [userId], references: [id])
+//   userId       String  @unique //1 TO 1 RELATIONSHIP require @unique on reference FK
+// }
+
+// model Post {
+//   id            String     @id @default(uuid())
+//   rating        Decimal
+//   createdAt     DateTime   
+//   updatedAt     DateTime   
+//   author        User       @relation("WrittenPosts", fields: [authorId], references: [id])
+//   authorId      String
+//   favoritedBy   User?      @relation("FavoritePosts", fields: [favoritedById], references: [id]) // User? to declare favoritedBy is optional
+//   favoritedById String? // User? to declare favoritedById is optional
+//   categories    Category[]
+// }
+
+// model Category {
+//   id    String @id @default(uuid())
+//   posts Post[]
+// }
+
+// ABOUT ATTRIBUTES IN PRISMA
+
+model User {
+  id             String          @id @default(uuid()) // Inline attribute attribute
+  name           String
+  age            Int
+  phone          String
+  citizenId      String
+  email          String          @unique //Unique attribute will force email field to be unique in table
+  // isAdmin        Boolean
+  role           Role            @default(BASIC)
+  writtenPosts   Post[]          @relation("WrittenPosts")
+  favoritePosts  Post[]          @relation("FavoritePosts")
+  userPreference UserPreference? //CAN HAVE OR NOT HAVE USER PREFERENCE MAP
+
+  // Add block level attributes
+  @@unique([phone, citizenId]) //Add unique rule to phone and citizenId field
+  @@index([email]) //Add index on email for queries speed
+}
+
+model UserPreference {
+  id           String  @id @default(uuid())
+  emailUpdates Boolean
+  user         User    @relation(fields: [userId], references: [id])
+  userId       String  @unique //1 TO 1 RELATIONSHIP require @unique on reference FK
+}
+
+model Post {
+  id            String     @id @default(uuid())
+  title         String
+  averageRating Decimal
+  createdAt     DateTime   @default(now()) //Set default to now timestamp at time of create
+  updatedAt     DateTime   @updatedAt //Everytime update this row, the updatedAt field will auto fill by NOW
+  author        User       @relation("WrittenPosts", fields: [authorId], references: [id])
+  authorId      String
+  favoritedBy   User?      @relation("FavoritePosts", fields: [favoritedById], references: [id]) // User? to declare favoritedBy is optional
+  favoritedById String? // User? to declare favoritedById is optional
+  categories    Category[]
+
+  // @@id([title, authorId])   //title and authorId make associated PK for each post
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String @unique
+  posts Post[]
+}
+
+// enum type only allow specific value input into that field
+enum Role {
+  BASIC
+  EDITOR
+  ADMIN
+}
