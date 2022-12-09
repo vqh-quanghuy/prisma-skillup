@@ -123,17 +123,17 @@ datasource db {
 // ABOUT ATTRIBUTES IN PRISMA
 
 model User {
-  id             String          @id @default(uuid()) // Inline attribute attribute
-  name           String
-  age            Int
-  phone          String
-  citizenId      String
-  email          String          @unique //Unique attribute will force email field to be unique in table
-  // isAdmin        Boolean
-  role           Role            @default(BASIC)
-  writtenPosts   Post[]          @relation("WrittenPosts")
-  favoritePosts  Post[]          @relation("FavoritePosts")
-  userPreference UserPreference? //CAN HAVE OR NOT HAVE USER PREFERENCE MAP
+  id               String          @id @default(uuid()) // Inline attribute attribute
+  name             String
+  age              String
+  phone            String
+  citizenId        String
+  email            String          @unique //Unique attribute will force email field to be unique in table
+  role             Role            @default(BASIC)
+  writtenPosts     Post[]          @relation("WrittenPosts")
+  favoritePosts    Post[]          @relation("FavoritePosts")
+  userPreference   UserPreference? @relation(fields: [userPreferenceId], references: [id])
+  userPreferenceId String?         @unique //1 TO 1 RELATIONSHIP require @unique on reference FK
 
   // Add block level attributes
   @@unique([phone, citizenId]) //Add unique rule to phone and citizenId field
@@ -143,8 +143,7 @@ model User {
 model UserPreference {
   id           String  @id @default(uuid())
   emailUpdates Boolean
-  user         User    @relation(fields: [userId], references: [id])
-  userId       String  @unique //1 TO 1 RELATIONSHIP require @unique on reference FK
+  user         User?
 }
 
 model Post {

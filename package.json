@@ -2,9 +2,9 @@
   "name": "rcvn-skillup",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "devStart": "nodemon script.ts"
+    "devStart": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +17,11 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@prisma/client": "^4.7.1"
+    "@fastify/static": "^5.0.0",
+    "@fastify/swagger": "^6.0.0",
+    "@prisma/client": "^4.7.1",
+    "dotenv": "^16.0.3",
+    "fastify": "^4.10.2",
+    "uuid": "^9.0.0"
   }
 }
